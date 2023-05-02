@@ -1,5 +1,5 @@
 // Call modules
-const { validateJWT , genJWT} = require('./component/auth_func.js');
+const { validateJWT , genJWT} = require('./component/auth.js');
 const express = require('express');
 const mongoose = require('mongoose');
 // Call .ENV
