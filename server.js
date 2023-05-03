@@ -1,7 +1,9 @@
 // Call modules
-const { validateJWT , genJWT} = require('./component/auth.js');
+const { validateJWT , genJWT } = require('./component/auth.js');
 const express = require('express');
+//Get schema
 const mongoose = require('mongoose');
+const userList = require('./models/user')
 // Call .ENV
 const dotenv = require('dotenv');
 dotenv.config();
@@ -16,34 +18,24 @@ mongoose.connection.once('open', function() {
   console.log("Connection Successful!");
 });
 
-//Get schema
-const userList = require('./models/user')
+
 
 //Endpoint1 - Get users data by JWT
 app.get("/", validateJWT, (req, res) => {
-    let username = req.user.username
-    let name = req.user.name
-    let role = req.user.role
-    role = role.charAt(0).toUpperCase()+role.slice(1);
-    let iat = req.user.iat
-    let exp = req.user.exp
-    res.send("Welcome! Mr./Mrs.:"+name+"("+username+"), user_right : "+role+", JWT_issued :"+iat+", JWT_expire :"+exp)
+    const user = {username:req.user.username, name:req.user.name,role:req.user.role,iat:req.user.iat,exp:req.user.exp}
+    user.role = user.role.charAt(0).toUpperCase()+user.role.slice(1);
+    res.json("Welcome! Mr./ Mrs.: "+user.name+"("+user.username+"), user_right : "+user.role+", JWT_issued :"+user.iat+", JWT_expire :"+user.exp)
   })
 
 //Endpoint2 - Login to generate JWT
 app.post("/login", async (req, res) => {
     const {username, password} = req.body
     const getUser = await userList.find({username: username});
-    if (!getUser.length) {return res.send('Incorrect Username')}
-    if (getUser[0].password !== password) {return res.send('Incorrect Password')}
+    if (!getUser.length || getUser[0].password !== password ) {return res.status(401).send('Invalid username or password')}
     try { 
     const access_token = genJWT(getUser[0]) 
-    let id= getUser[0].id
-    let name = getUser[0].name
-    let role = getUser[0].role
-
-    return res.json({ id,name,username, role ,access_token});
-    } catch (err) { return res.sendStatus(400);}
+    return res.json({ id:getUser[0].id,name:getUser[0].name,username, role:getUser[0].role ,access_token});
+    } catch (err) { return res.sendStatus(500);}
 
   })
 

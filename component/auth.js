@@ -25,5 +25,5 @@ const validateJWT = (req, res, next) => {
     }
 };
 
-// Export Modules
-module.exports = { genJWT, validateJWT };
+// Export modules
+module.exports = { genJWT , validateJWT };
