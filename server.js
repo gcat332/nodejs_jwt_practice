@@ -18,8 +18,6 @@ mongoose.connection.once('open', function() {
   console.log("Connection Successful!");
 });
 
-
-
 //Endpoint1 - Get users data by JWT
 app.get("/", validateJWT, (req, res) => {
     const user = {username:req.user.username, name:req.user.name,role:req.user.role,iat:req.user.iat,exp:req.user.exp}
